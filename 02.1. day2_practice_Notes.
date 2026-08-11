@@ -1,0 +1,87 @@
+# SQL Practice Notes: Employees Table
+
+This document contains a collection of fundamental SQL queries and concepts practiced on an `employees` table.
+
+### 1. Sort by Employee ID
+
+```sql
+SELECT * FROM employees ORDER BY emp_id;
+
+```
+
+**Explanation:** Sorts the dataset in ascending order (smallest to largest) based on the `emp_id` column.
+
+### 2. Sort by Newest Hires First
+
+```sql
+SELECT * FROM employees ORDER BY hire_date DESC;
+
+```
+
+**Explanation:** The `DESC` keyword sorts the data in descending order, meaning the most recent dates appear at the top. The default behavior is `ASC` (ascending), which would show the oldest hires first.
+
+### 3. Department-Wise Total & Average Salary
+
+```sql
+SELECT department, SUM(salary) AS total_budget, 
+       ROUND(AVG(salary), 2) AS average_salary
+FROM employees
+GROUP BY department
+ORDER BY total_budget DESC;
+
+```
+
+**Explanation:**
+
+* `GROUP BY` organizes the rows into logical groups based on the `department`.
+* Aggregate functions like `SUM()` and `AVG()` calculate metrics for each specific group.
+* `ROUND(x, 2)` restricts the decimal output to two places.
+* *Note:* Changing `DESC` to `ASC` would sort the results from the lowest budget to the highest.
+
+### 4. Extract First Name from Full Name (PostgreSQL)
+
+```sql
+SELECT full_name, split_part(full_name, ' ', 1) AS first_name, department
+FROM employees;
+
+```
+
+**Explanation:** `split_part(text, delimiter, position)` breaks the string into segments based on a delimiter (in this case, a space `' '`). Selecting position `1` returns the first word, which represents the employee's first name.
+
+### 5. Top 5 Highest-Paid Employees
+
+```sql
+SELECT emp_id, full_name, department, salary
+FROM employees
+ORDER BY salary DESC
+LIMIT 5;
+
+```
+
+**Explanation:** `ORDER BY salary DESC` sorts the salaries from highest to lowest. `LIMIT 5` restricts the final output to only the top 5 rows.
+
+### 6. Employees Earning Above Average (Subquery)
+
+```sql
+SELECT full_name, department, salary
+FROM employees
+WHERE salary > (SELECT AVG(salary) FROM employees)
+ORDER BY salary DESC
+LIMIT 10;
+
+```
+
+**Explanation:**
+
+* `(SELECT AVG(salary) FROM employees)` is a **subquery**. It executes first to calculate the overall average salary of the company.
+* The outer query then compares individual salaries against this average and returns only the employees who earn more than that amount.
+
+---
+
+## 💡 Quick Reminders
+
+* **`WHERE`**: Acts as a row-level filter (evaluates individual rows before any grouping occurs).
+* **`GROUP BY` + Aggregate (`SUM`/`AVG`/`COUNT`)**: Creates a group-level summary.
+* **`ORDER BY`**: Strictly alters the display order of the results; it does not change the underlying data.
+* **`LIMIT n`**: Restricts the output to the first *n* rows. Always use this in conjunction with `ORDER BY` to ensure predictable results (otherwise, it returns *n* random rows).
+* **Syntax Rule**: Never place a comma after the final column in your `SELECT` list, as it will trigger a syntax error.
